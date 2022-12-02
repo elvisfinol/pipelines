@@ -14,13 +14,6 @@ variables:
   vmImageName: 'ubuntu-latest'
 
  steps:
- - task: Docker@2
-   displayName: Build an image
-   inputs:
-     repository: $(imageName)
-     command: build
-     Dockerfile: app/Dockerfile
-     
 - task: prisma-cloud-compute-scan@3
     inputs:
        scanType: 'images'
