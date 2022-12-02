@@ -1,66 +1,29 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy
+ your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 trigger:
-- main
-
-resources:
-- repo: self
-
-variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'dockerHub'
-  mapDockerSocket: true
-  imageRepository: 'demiguelmoreno/evilpetclinic_c'
-  containerRegistry: 'https://hub.docker.com/'
-  dockerfilePath: 'Dockerfile'
-  tag: '$(Build.BuildId)'
-  
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
-
-stages:
-- stage: Build
-  displayName: Build and push stage
-  jobs:  
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Maven@3
-      inputs:
-        mavenPomFile: 'pom.xml'
-        publishJUnitResults: false
-        testResultsFiles: '**/surefire-reports/TEST-*.xml'
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.11'
-        mavenVersionOption: 'Default'
-        mavenAuthenticateFeed: false
-        effectivePomSkip: false
-        sonarQubeRunAnalysis: false
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        command: build
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: latest
-    - task: prisma-cloud-compute-scan@3
-      inputs:
-       scanType: 'images'
-       twistlockService: 'Prisma Service Connection'
-       artifact: '$(imageRepository)'
-    
-    - task: Docker@2
-      displayName: Login to Docker Hub
-      inputs:
-        command: login
-        containerRegistry: $(dockerRegistryServiceConnection)
-    
-    - task: Docker@2
-      displayName: Push an image to container registry
-      inputs:
-        command: Push
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: latest
+ branches:
+ include:
+ - master
+pool:
+ vmImage: 'ubuntu-latest'
+steps:
+- task: Palo-Alto-Networks.build-release-task.custom-build-releasetask.prisma-cloud-compute-scan@1
+ displayName: 'Prisma Cloud Compute Scan'
+ inputs:
+ twistlockService: 'NewEnv Connection'
+ artifact: 'nginx:latest'
+- task: Prisma Cloud IaC Scan@1
+ inputs:
+ Path: 'repo'
+ prismaCloudService: 'Prisma Cloud Scan'
+ High: '0'
+ Medium: '0'
+ Low: '0'
+ Operator: 'or'
+- script: |
+ echo Add other tasks to build, test, and deploy your project.
+ echo See https://aka.ms/yaml
+ displayName: 'Run a multi-line script'
