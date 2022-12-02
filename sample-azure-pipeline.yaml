@@ -1,11 +1,17 @@
 trigger:
  - main
 
- pool:
-   vmImage: 'ubuntu-latest' 
-
- variables:
-   imageName: 'pipelines-javascript-docker'
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'dockerHub'
+  mapDockerSocket: true
+  imageRepository: 'demiguelmoreno/evilpetclinic_c'
+  containerRegistry: 'https://hub.docker.com/'
+  dockerfilePath: 'Dockerfile'
+  tag: '$(Build.BuildId)'
+  
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
 
  steps:
  - task: Docker@2
