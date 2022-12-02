@@ -47,7 +47,7 @@ stages:
     - task: prisma-cloud-compute-scan@3
       inputs:
        scanType: 'images'
-       twistlockService: 'demoBuild'
+       twistlockService: 'Prisma Service Connection'
        artifact: '$(imageRepository)'
     
     - task: Docker@2
