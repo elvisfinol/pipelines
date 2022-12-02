@@ -10,7 +10,7 @@ trigger:
 pool:
  vmImage: 'ubuntu-latest'
 steps:
-- task: Palo-Alto-Networks.build-release-task.custom-build-releasetask.prisma-cloud-compute-scan@1
+- task: prisma-cloud-compute-scan@3
  displayName: 'Prisma Cloud Compute Scan'
  inputs:
  twistlockService: 'NewEnv Connection'
