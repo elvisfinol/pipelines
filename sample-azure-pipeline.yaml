@@ -1,21 +1,16 @@
 trigger:
- - main
+- master
 
-variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'dockerHub'
-  mapDockerSocket: true
-  imageRepository: 'demiguelmoreno/evilpetclinic_c'
-  containerRegistry: 'https://hub.docker.com/'
-  dockerfilePath: 'Dockerfile'
-  tag: '$(Build.BuildId)'
-  
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+pool:
+  vmImage: ubuntu-latest
 
- steps:
-- task: prisma-cloud-compute-scan@3
-    inputs:
-       scanType: 'images'
-       twistlockService: 'demoBuild'
-       artifact: '$(imageRepository)'
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.8'
+  displayName: 'Install Python 3.8'
+- script: pip install checkov
+  displayName: 'Installing Prisma Cloud Code Security'
+- script: |
+    checkov --prisma-api-url $(PRISMA_API_URL) --bc-api-key $(PRISMA_API_KEY) -d . --repo-id $(System.TeamProject)/$(Build.Repository.Name) --branch $(Build.SourceBranchName) --compact --quiet --soft-fail
+  displayName: 'Scan Repo with Prisma Cloud'
